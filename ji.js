@@ -89,15 +89,28 @@ let JI = {
         return result;
     },
 
-    gcd: function (a, b) {
-        if (b) {
-            return this.gcd(b, a % b);
+    gcd: function (...args) {
+        if (args.length > 2) {
+            return this.gcd(args.pop(), this.gcd(...args));
+        }
+        if (args[1]) {
+            return this.gcd(args[1], args[0] % args[1]);
         } else {
-            return Math.abs(a);
+            return Math.abs(args[0]);
         }
     },
 
-
+    lcm: function (...args) {
+        if (args.length > 2) {
+            return this.lcm(args.pop(), this.lcm(...args));
+        }
+        if (args.length = 2) {
+            return args[0] * args[1] / this.gcd(args[0], args[1]);
+        }
+        if (args.length = 1) {
+            return Math.abs(args[0]);
+        }
+    },
 
     findEndOfBrackets: function (inputString, startPosition) {
         // This function finds ending position +1 of a segment starting at the 'startPosition' of the 'inputString'. 
@@ -415,32 +428,36 @@ class Tone extends Array {
 
                         // phase 3b: a single segment - which is a single number          
                         let parsedInteger = parseInt(inputFormula);
-                        let remainder = parsedInteger;
-                        let resultToneArray = [
-                            [0, 1]
-                        ];
-                        let prime = 2;
-                        let primeIndex = 0;
-                        while (remainder > 1) {
-                            if (remainder % prime === 0) {
-                                resultToneArray[primeIndex][0]++;
-                                remainder = remainder / prime;
-                            } else {
-                                let p = prime + 1;
-                                while (p <= remainder) {
-                                    if (JI.isPrime(p)) {
-                                        prime = p;
-                                        primeIndex++;
-                                        resultToneArray.push([0, 1]);
-                                        break;
-                                    } else {
-                                        p++;
+                        if (parsedInteger <= 0) {
+                            throw new Error(`The must not be negative or zero (${parseInt}).`)
+                        }
+                        let resultToneArray = [];
+                        if (parsedInteger > 1) {
+                            let remainder = parsedInteger;
+                            let prime = 2;
+                            let primeIndex = 0;
+                            resultToneArray.push([0, 1]);
+                            while (remainder > 1) {
+                                if (remainder % prime === 0) {
+                                    resultToneArray[primeIndex][0]++;
+                                    remainder = remainder / prime;
+                                } else {
+                                    let p = prime + 1;
+                                    while (p <= remainder) {
+                                        if (JI.isPrime(p)) {
+                                            prime = p;
+                                            primeIndex++;
+                                            resultToneArray.push([0, 1]);
+                                            break;
+                                        } else {
+                                            p++;
+                                        }
                                     }
                                 }
                             }
-                        }
-                        if (primeIndex > JI.dimension) {
-                            JI.dimension = primeIndex;
+                            if (primeIndex > JI.dimension) {
+                                JI.dimension = primeIndex;
+                            }
                         }
                         resultTone = new Tone(resultToneArray);
                     }
@@ -472,15 +489,7 @@ class Tone extends Array {
             case 'fraction':
                 if (this.isJI) {
                     let result = '';
-                    let a = 1;
-                    let b = 1;
-                    for (let i = 0; i < this.length; i++) {
-                        if (this[i][0] >= 0) {
-                            a = a * Math.pow(JI.primes[i], this[i][0]);
-                        } else {
-                            b = b * Math.pow(JI.primes[i], -this[i][0]);
-                        }
-                    }
+                    let [a, b] = this.fraction;
                     if (b === 1) {
                         result = a.toString(10);
                     } else {
@@ -526,49 +535,22 @@ class Tone extends Array {
         }
     }
 
-    // get formulaFraction() {
-    //     if (this.isJI) {
-    //         let result = '';
-    //         let a = 1;
-    //         let b = 1;
-    //         for (let i = 0; i < this.length; i++) {
-    //             if (this[i][0] >= 0) {
-    //                 a = a * Math.pow(JI.primes[i], this[i][0]);
-    //             } else {
-    //                 b = b * Math.pow(JI.primes[i], -this[i][0]);
-    //             }
-    //         }
-    //         if (b === 1) {
-    //             result = a.toString(10);
-    //         } else {
-    //             result = a + '/' + b
-    //         };
-    //         return result;
-    //     }
-    // }
 
-    // get formulaFactors() {
-    //     if (this.length == 1 && this[0][0] === 0) {
-    //         return '1';
-    //     }
+    get fraction() {
+        if (this.isJI) {
+            let a = 1;
+            let b = 1;
+            for (let i = 0; i < this.length; i++) {
+                if (this[i][0] >= 0) {
+                    a = a * Math.pow(JI.primes[i], this[i][0]);
+                } else {
+                    b = b * Math.pow(JI.primes[i], -this[i][0]);
+                }
+            }
+            return new Frac([a, b]);
+        }
+    }
 
-    //     let resultArray = [];
-    //     for (let i = 0; i < this.length; i++) {
-    //         if (this[i][0] === 0) {
-    //             continue;
-    //         }
-    //         if (this[i][0] > 0 && this[i][1] === 1) {
-    //             resultArray.push(`${JI.primes[i]}^${this[i][0]}`);
-    //         } else {
-    //             if (this[i][1] === 1) {
-    //                 resultArray.push(`${JI.primes[i]}^(${this[i][0]})`);
-    //             } else {
-    //                 resultArray.push(`${JI.primes[i]}^(${this[i][0]}/${this[i][1]})`)
-    //             };
-    //         }
-    //     }
-    //     return resultArray.join(' * ');
-    // }
 
     get ratio() {
         let ratio = 1;
@@ -926,7 +908,16 @@ class Harmony extends Array {
     }
 
     toCanonic() {
-        let denominator = JI.gcd
+        if (this.isJI()) {
+            let denominators = [];
+            this.forEach(
+                (value) => {
+                    denominators.push(value.fraction[1])
+                }
+            )
+            let commonMultiplier = JI.lcm(...denominators);
+            return this.multiply(commonMultiplier.toString());
+        }
     }
 
     sortByHeight() {
@@ -940,11 +931,107 @@ class Harmony extends Array {
         return test;
     }
 
-
-
-
-
 };
+
+
+
+class Basis {
+    constructor(harmony) {
+
+    }
+
+    _reduceBasis(harmony) {
+        let reduction = new Harmony(harmony);
+        let inversion = new Harmony();
+        for (let i = 0; i < reduction.length; i++) {
+            inversion[i] = new Tone();
+            for (let j = 0; j < i; j++) {
+                inversion[i].push(new Frac([0, 1]));
+            }
+            inversion[i].push(new Frac([1, 1]));
+        }
+        let maxLength = 1;
+        reduction.forEach(
+            (value) => maxLength = (value.length > maxLength) ? value.length : maxLength
+        )
+
+        for (let mainIndex = 0; mainIndex <= reduction.length; mainIndex++) {
+            for (let columnIndex = 0; columnIndex <= maxLength; columnIndex++) {
+                for (let rowIndex = mainIndex; rowIndex <= reduction.length; rowIndex++) {
+                    if (reduction[rowIndex][columnIndex][0] !== 0) {
+                        
+                    }
+                }
+            }
+        }
+    }
+
+    get basis() {
+
+    }
+
+    get reducedBasis() {
+
+    }
+
+    get invertedBasis() {
+
+    }
+
+
+
+
+
+
+    set inverseReduction(yesNo) {
+
+    }
+
+
+    get inverseReduction() {
+
+    }
+
+
+
+    add(tone) {
+
+    }
+
+    remove(tone) {
+
+    }
+
+    isIndependent(tone) {
+
+    }
+
+    replace(harmony) {
+
+    }
+
+    isEquivalent(harmony) {
+
+    }
+
+
+
+
+
+
+
+
+}
+
+
+
+class Widths {
+    constructor(basis, widths) {
+
+    }
+
+
+}
 
 
 
@@ -1118,7 +1205,17 @@ class Harmony extends Array {
 // }
 
 
+// let a = new Harmony(`[{1, 3} * {1, 3}^(-1) * {4, 5, 6}]`);
+// console.log(a.getFormula('fraction'));
+// let b = a.sortByHeight();
+// console.log(b.getFormula());
+// let c = b.toCanonic();
+// console.log(c.getFormula());
+
+
 let a = new Harmony(`[{1, 3} * {1, 3}^(-1) * {4, 5, 6}]`);
+let b = new Harmony(a);
+b.push(new Tone('7/4'));
+b[0][0] = [13, 1];
 console.log(a.getFormula());
-let b = a.sortByHeight();
-console.log(b.getFormula())
+console.log(b.getFormula());
