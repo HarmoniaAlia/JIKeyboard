@@ -279,68 +279,50 @@ class Frac extends Array {
 
 
     multiply(value) {
-        if (typeof value == 'string' || Array.isArray(value)) {
-            value = new Frac(value);
-        }
-        if (value instanceof Frac) {
-            let resultArray = [
-                this[0] * value[0],
-                this[1] * value[1]
-            ];
-            return new Frac(resultArray);
-        } else {
-            throw new Error(`The format of the fraction ${value} is incorrect.`)
-        }
+        value = new Frac(value);
+        let resultArray = [
+            this[0] * value[0],
+            this[1] * value[1]
+        ];
+        return new Frac(resultArray);
     }
 
     divide(value) {
-        if (typeof value == 'string' || Array.isArray(value)) {
-            value = new Frac(value);
-        }
-        if (value instanceof Frac) {
-            let resultArray = [
-                this[0] * value[1],
-                this[1] * value[0]
-            ];
-            return new Frac(resultArray);
-        } else {
-            throw new Error(`The format of the fraction ${value} is incorrect.`)
-        }
+        value = new Frac(value);
+        let resultArray = [
+            this[0] * value[1],
+            this[1] * value[0]
+        ];
+        return new Frac(resultArray);
     }
 
     add(value) {
-        if (typeof value == 'string' || Array.isArray(value)) {
-            value = new Frac(value);
-        }
-        if (value instanceof Frac) {
-            let resultArray = [
-                this[0] * value[1] + this[1] * value[0],
-                this[1] * value[1]
-            ];
-            return new Frac(resultArray);
-        } else {
-            throw new Error(`The format of the fraction ${value} is incorrect.`)
-        }
+        value = new Frac(value);
+        let resultArray = [
+            this[0] * value[1] + this[1] * value[0],
+            this[1] * value[1]
+        ];
+        return new Frac(resultArray);
     }
 
     subtract(value) {
-        if (typeof value == 'string' || Array.isArray(value)) {
-            value = new Frac(value);
-        }
-        if (value instanceof Frac) {
-            let resultArray = [
-                this[0] * value[1] - this[1] * value[0],
-                this[1] * value[1]
-            ];
-            return new Frac(resultArray);
-        } else {
-            throw new Error(`The format of the fraction ${value} is incorrect.`)
-        }
+        value = new Frac(value);
+        let resultArray = [
+            this[0] * value[1] - this[1] * value[0],
+            this[1] * value[1]
+        ];
+        return new Frac(resultArray);
+    }
+
+    invert() {
+        let resultArray = [
+            this[1],
+            this[0]
+        ];
+        return new Frac(resultArray);
     }
 
 }
-
-
 
 
 
@@ -536,7 +518,7 @@ class Tone extends Array {
     }
 
 
-    get fraction() {
+    fraction() {
         if (this.isJI) {
             let a = 1;
             let b = 1;
@@ -552,7 +534,7 @@ class Tone extends Array {
     }
 
 
-    get ratio() {
+    ratio() {
         let ratio = 1;
         this.forEach(
             (value, index) =>
@@ -561,15 +543,15 @@ class Tone extends Array {
         return ratio;
     }
 
-    get pitch() {
+    pitch() {
         return this.ratio * JI.refPitch;
     }
 
-    get height() {
+    height() {
         return Math.log2(this.ratio);
     }
 
-    get weight() {
+    weight() {
 
     }
 
@@ -602,7 +584,7 @@ class Tone extends Array {
                 resultArray[i] = this[i] || value[i];
             } else {
                 a = this[i][0] * value[i][1] + this[i][1] * value[i][0];
-                if (i === resultArrayEnd && a === 0 && i > 0) {
+                if (i === resultArrayEnd && a === 0) {
                     resultArrayEnd--;
                 } else {
                     b = this[i][1] * value[i][1];
@@ -882,7 +864,7 @@ class Harmony extends Array {
         for (let i = 0; i < this.length; i++) {
             let test = true;
             for (let j = 0; j < value.length; j++) {
-                test = test && value[i].toString() !== this[j].toString();
+                test = test && value[j].toString() !== this[i].toString();
             }
             if (test) {
                 resultHarmony.push(this[i]);
@@ -936,90 +918,217 @@ class Harmony extends Array {
 
 
 class Basis {
-    constructor(harmony) {
+    constructor(basis, basisWidths) {
+        let basis = new Harmony(basis);
+        let reduction = Basis._reduce(basis);
+        if (basisWidths) {
+            let test = Array.isArray(basisWidths) && basisWidths.forEach(
+                (value) => typeof value === `number`
+            )
+            if (!test) {
+                throw new Error(`Basis widths must be an array of numbers.`)
+            }
+        }
+        if (reduction.isBasis) {
+            this._basis = basis;
+            this._basisWidths = basis.map(
+                (value, index) => basisWidths[index] || 0
+            )
+            this._reduced = reduction.reduced;
+            this._inverted = reduction.inverted;
+            this._primeIndices = reduction.primeIndices;
 
+            this._primeWidths = [];
+            for (let i = 0; i < this._primeIndices.length; i++) {
+                let w = 0;
+                for (let j = 0; j < this._basis.length; j++) {
+                    w = w + this._inverted[j] * this._basisWidths[j];
+                }
+                this._primeWidths[this.primeIndices[i]] = w;
+            }
+
+            //Object.freeze(this._primeIndices);
+        } else {
+            throw new Error(`The constructor harmony is not a basis (${basis}).`)
+        }
     }
 
-    _reduceBasis(harmony) {
-        let reduction = new Harmony(harmony);
-        let inversion = new Harmony();
-        for (let i = 0; i < reduction.length; i++) {
-            inversion[i] = new Tone();
+    static _reduce(harmony) {
+        let reduced = new Harmony(harmony);
+
+        // initiate invertedBasis: generate diagonal unit matrix 
+        let inverted = new Harmony();
+        for (let i = 0; i < reduced.length; i++) {
+            inverted[i] = new Tone();
             for (let j = 0; j < i; j++) {
-                inversion[i].push(new Frac([0, 1]));
+                inverted[i].push(new Frac([0, 1]));
             }
-            inversion[i].push(new Frac([1, 1]));
+            inverted[i].push(new Frac([1, 1]));
         }
+
+        // initiate primeIndices
+        let primeIndices = [];
+
+        // calculate max length of tone/vectors included in Reduction
         let maxLength = 1;
-        reduction.forEach(
+        reduced.forEach(
             (value) => maxLength = (value.length > maxLength) ? value.length : maxLength
         )
 
-        for (let mainIndex = 0; mainIndex <= reduction.length; mainIndex++) {
-            for (let columnIndex = 0; columnIndex <= maxLength; columnIndex++) {
-                for (let rowIndex = mainIndex; rowIndex <= reduction.length; rowIndex++) {
-                    if (reduction[rowIndex][columnIndex][0] !== 0) {
-                        
-                    }
+        // reduce reducedBasis, and in parallel calculate invertedBasis and primeIndices
+        let mainRowIndex = 0;
+        let mainColumnIndex = 0;
+        let subRowIndex = 0;
+        let subColumnIndex = 0;
+
+        for (mainRowIndex = 0; mainRowIndex < reduced.length; mainRowIndex++) {
+            let searchReduction = true;
+
+            for (subColumnIndex = mainColumnIndex; searchReduction && subColumnIndex < maxLength; subColumnIndex++) {
+                for (subRowIndex = mainRowIndex; searchReduction && subRowIndex < reduced.length; subRowIndex++) {
+                    if (reduced[subRowIndex][subColumnIndex] && reduced[subRowIndex][subColumnIndex][0] !== 0) {
+                        // swap rows
+                        reduced[mainRowIndex] = reduced.splice(subRowIndex, 1, reduced[mainRowIndex])[0];
+                        inverted[mainRowIndex] = inverted.splice(subRowIndex, 1, reduced[mainRowIndex])[0];
+
+                        // reduce main row
+                        inverted[mainRowIndex] = inverted[mainRowIndex]
+                            .power(
+                                reduced[mainRowIndex][subColumnIndex].invert());
+                        reduced[mainRowIndex] = reduced[mainRowIndex]
+                            .power(
+                                reduced[mainRowIndex][subColumnIndex].invert());
+
+                        // reduce other rows
+                        for (let i = 0; i < reduced.length; i++) {
+                            if (i !== mainRowIndex && reduced[i][subColumnIndex] && reduced[i][subColumnIndex][0] !== 0) {
+                                inverted[i] = inverted[i]
+                                    .multiply(
+                                        inverted[mainRowIndex]
+                                        .power(reduced[i][subColumnIndex].multiply(-1))
+                                    )
+                                reduced[i] = reduced[i]
+                                    .multiply(
+                                        reduced[mainRowIndex]
+                                        .power(reduced[i][subColumnIndex].multiply(-1))
+                                    )
+                            }
+                        }
+
+                        mainColumnIndex = subColumnIndex;
+                        primeIndices.push(mainColumnIndex);
+                        mainColumnIndex++;
+                        searchReduction = false;
+
+                    };
                 }
             }
         }
+
+        let isBasis = reduced[reduced.length - 1].length > 0;
+
+        return {
+            reduced: reduced,
+            inverted: inverted,
+            primeIndices: primeIndices,
+            isBasis: isBasis,
+        };
+
     }
+
+    static reduce(harmony) {
+        return Basis._reduce(harmony).reduced;
+    }
+
+    static invert(harmony) {
+        return Basis._reduce(harmony).inverted;
+    }
+
+    static isBasis(harmony) {
+        return Basis._reduce(harmony).isBasis;
+    }
+
 
     get basis() {
-
+        return this._basis;
     }
 
-    get reducedBasis() {
-
+    get reduced() {
+        return this._reduced;
     }
 
-    get invertedBasis() {
-
+    get inverted() {
+        return this._inverted;
     }
 
-
-
-
-
-
-    set inverseReduction(yesNo) {
-
+    get primeIndices() {
+        return this._primeIndices;
     }
 
 
-    get inverseReduction() {
+    // future enhancement:
+    set inverseReduction(yesNo) {}
 
-    }
+    get inverseReduction() {}
 
 
 
-    add(tone) {
-
-    }
-
-    remove(tone) {
-
-    }
-
+    // test for a single tone:
     isIndependent(tone) {
-
+        tone = new Tone(tone);
+        let expandedBasis = this.basis.add(tone);
+        return Basis.isBasis(expandedBasis);
     }
 
-    replace(harmony) {
-
+    // a tone or an entire harmony can be added:
+    add(harmony, widths) {
+        harmony = new Harmony(harmony)
+        let expandedBasis = this.basis.add(harmony);
+        let expandedWidths
+        if (typeof widths == 'number') {
+            widths = [widths];
+        }
+        if (Array.isArray(widths)) {
+            expandedWidths = this.basisWidths.push(...widths);
+        }
+        if (Basis.isBasis(expandedBasis)) {
+            return new Basis(expandedBasis, expandedWidths);
+        } else {
+            throw new Error(`Added tone (${tone}) is not independent.`)
+        }
     }
 
-    isEquivalent(harmony) {
-
+    // a tone or an entire harmony can be removed 
+    remove(harmony) {
+        harmony = new Harmony(harmony);
+        let expandedBasis = new Harmony(this.basis);
+        // todo ......................................
+        harmony.forEach(
+            (harmonyTone) => expandedBasis.forEach(
+                (basisTone, index) => {
+                    if (harmonyTone.toString === basisTone.toString) {
+                        expandedBasis.splice(index, 1);
+                    }
+                }
+            )
+        )
     }
 
+    // test whether the harmony is equivalent to another one
+    isEquivalent(value) {
+        let value = new Basis(value);
+        return this.basis.toString = value.basis.toString;
+    }
 
+    // replace with an equivalent basis; widths are corrected accordingly
+    replace(value) {
+        if (this.isEquivalent(value)) {
+            // todo .....................................
+        } else {
+            throw new Error(`The replacing harmony is not equivalent.`)
+        }
 
-
-
-
-
+    }
 
 }
 
@@ -1213,9 +1322,32 @@ class Widths {
 // console.log(c.getFormula());
 
 
-let a = new Harmony(`[{1, 3} * {1, 3}^(-1) * {4, 5, 6}]`);
-let b = new Harmony(a);
-b.push(new Tone('7/4'));
-b[0][0] = [13, 1];
-console.log(a.getFormula());
-console.log(b.getFormula());
+
+// let a = new Harmony(`{1}^(-1) * {1}`);
+// console.log(a);
+
+
+
+let Basis_test = [
+    `{15, 75}`, `{2, 15, 75, 13/8}`,
+]
+for (let t of Basis_test) {
+    let x = new Basis(t);
+    console.log(`---> Basis test for ${t}-------------------`);
+    console.log(`Basis:`);
+    console.log(x.basis.getFormula());
+    console.log(x.basis);
+    console.log(`Reduced:`)
+    console.log(x.reduced)
+    console.log(`Inverted:`)
+    console.log(x.inverted)
+    console.log(`Prime indices:`)
+    console.log(x.primeIndices)
+
+    let y = x.remove(`{13/8}`);
+    console.log(y.basis.getFormula());
+    console.log(x.basis.toCanonic().getFormula());
+    // x.primeIndices[3] = 8;
+    // console.log(`Prime indices:`)
+    // console.log(x.primeIndices)
+}
