@@ -204,7 +204,7 @@ let ji = {
 }
 
 
-class jiFraction extends Array {
+class Fraction extends Array {
 
     constructor(value) {
         super();
@@ -279,39 +279,39 @@ class jiFraction extends Array {
 
 
     multiply(value) {
-        value = new jiFraction(value);
+        value = new Fraction(value);
         let resultArray = [
             this[0] * value[0],
             this[1] * value[1]
         ];
-        return new jiFraction(resultArray);
+        return new Fraction(resultArray);
     }
 
     divide(value) {
-        value = new jiFraction(value);
+        value = new Fraction(value);
         let resultArray = [
             this[0] * value[1],
             this[1] * value[0]
         ];
-        return new jiFraction(resultArray);
+        return new Fraction(resultArray);
     }
 
     add(value) {
-        value = new jiFraction(value);
+        value = new Fraction(value);
         let resultArray = [
             this[0] * value[1] + this[1] * value[0],
             this[1] * value[1]
         ];
-        return new jiFraction(resultArray);
+        return new Fraction(resultArray);
     }
 
     subtract(value) {
-        value = new jiFraction(value);
+        value = new Fraction(value);
         let resultArray = [
             this[0] * value[1] - this[1] * value[0],
             this[1] * value[1]
         ];
-        return new jiFraction(resultArray);
+        return new Fraction(resultArray);
     }
 
     invert() {
@@ -319,7 +319,7 @@ class jiFraction extends Array {
             this[1],
             this[0]
         ];
-        return new jiFraction(resultArray);
+        return new Fraction(resultArray);
     }
 
     toNumber() {
@@ -331,7 +331,7 @@ class jiFraction extends Array {
 
 
 
-class jiTone extends Array {
+class Tone extends Array {
 
     constructor(value) {
         super();
@@ -349,7 +349,7 @@ class jiTone extends Array {
 
     setByArray(value) {
         for (let i = 0; i < value.length; i++) {
-            let fraction = new jiFraction(value[i]);
+            let fraction = new Fraction(value[i]);
             this[i] = fraction;
         }
 
@@ -376,13 +376,13 @@ class jiTone extends Array {
         // phase 1: the input formula split at: '*' and '/'
         cursorEnd = ji._findEndOfSegment(inputFormula, 0, `^`, `*/`);
         if (cursorEnd < inputFormula.length) {
-            resultTone = new jiTone(inputFormula.slice(cursorStart, cursorEnd));
+            resultTone = new Tone(inputFormula.slice(cursorStart, cursorEnd));
             operator;
             while (cursorEnd < inputFormula.length) {
                 operator = inputFormula[cursorEnd];
                 cursorStart = cursorEnd + 1;
                 cursorEnd = ji._findEndOfSegment(inputFormula, cursorStart, `^`, `*/`);
-                let nextTone = new jiTone(inputFormula.slice(cursorStart, cursorEnd));
+                let nextTone = new Tone(inputFormula.slice(cursorStart, cursorEnd));
                 switch (operator) {
                     case `*`:
                         resultTone = resultTone.multiply(nextTone);
@@ -400,8 +400,8 @@ class jiTone extends Array {
             // phase 2: the input formula split at: '^'
             cursorEnd = ji._findEndOfSegment(inputFormula, 0, ``, `^`);
             if (cursorEnd < inputFormula.length) {
-                let baseTone = new jiTone(inputFormula.slice(cursorStart, cursorEnd));
-                let toneExponent = new jiFraction(inputFormula.slice(cursorEnd + 1));
+                let baseTone = new Tone(inputFormula.slice(cursorStart, cursorEnd));
+                let toneExponent = new Fraction(inputFormula.slice(cursorEnd + 1));
                 resultTone = baseTone.power(toneExponent);
             } else {
 
@@ -409,7 +409,7 @@ class jiTone extends Array {
                 cursorEnd = ji._findEndOfBrackets(inputFormula, 0);
                 if (cursorEnd = inputFormula.length) {
                     if (/[^0-9]/.test(inputFormula)) {
-                        resultTone = new jiTone(inputFormula.slice(1, -1));
+                        resultTone = new Tone(inputFormula.slice(1, -1));
                     } else {
 
                         // phase 3b: a single segment - which is a single number          
@@ -445,7 +445,7 @@ class jiTone extends Array {
                                 ji.setDimension(primeIndex);
                             }
                         }
-                        resultTone = new jiTone(resultToneArray);
+                        resultTone = new Tone(resultToneArray);
                     }
                 }
             }
@@ -533,7 +533,7 @@ class jiTone extends Array {
                     b = b * Math.pow(ji.primes()[i], -this[i][0]);
                 }
             }
-            return new jiFraction([a, b]);
+            return new Fraction([a, b]);
         }
     }
 
@@ -573,20 +573,20 @@ class jiTone extends Array {
     }
 
     power(value) {
-        value = new jiFraction(value);
+        value = new Fraction(value);
         if (value[0] == 0) {
-            return new jiTone(`1`)
+            return new Tone(`1`)
         }
         let resultArray = [];
         for (let i = 0; i < this.length; i++) {
             resultArray[i] = value.multiply(this[i]);
         }
-        return new jiTone(resultArray);
+        return new Tone(resultArray);
     }
 
 
     multiply(value) {
-        value = new jiTone(value);
+        value = new Tone(value);
 
         let shorterEnd = Math.min(this.length, value.length) - 1;
         let longerEnd = Math.max(this.length, value.length) - 1;
@@ -610,19 +610,19 @@ class jiTone extends Array {
                 }
             }
         }
-        return new jiTone(resultArray);
+        return new Tone(resultArray);
 
     }
 
     divide(value) {
-        value = new jiTone(value);
+        value = new Tone(value);
         return this.multiply(value.power(`-1`))
     }
 
     toOctave(octave) {
         octave = octave || 0;
         let correction = octave - Math.floor(this.height);
-        let correctionTone = new jiTone('2').power(correction);
+        let correctionTone = new Tone('2').power(correction);
         return this.multiply(correctionTone);
     }
 
@@ -639,7 +639,7 @@ class jiTone extends Array {
 
 
 
-class jiHarmony extends Array {
+class Harmony extends Array {
 
     constructor(value) {
         super();
@@ -657,7 +657,7 @@ class jiHarmony extends Array {
 
     setByArray(value) {
         for (let i = 0; i < value.length; i++) {
-            let tone = new jiTone(value[i]);
+            let tone = new Tone(value[i]);
             this[i] = tone;
         }
     }
@@ -680,12 +680,12 @@ class jiHarmony extends Array {
         // phase 0: the input formula split at: '+' and '-'
         cursorEnd = ji._findEndOfSegment(inputFormula, 0, `^*/`, `+-`);
         if (cursorEnd < inputFormula.length) {
-            resultHarmony = new jiHarmony(inputFormula.slice(cursorStart, cursorEnd));
+            resultHarmony = new Harmony(inputFormula.slice(cursorStart, cursorEnd));
             while (cursorEnd < inputFormula.length) {
                 operator = inputFormula[cursorEnd];
                 cursorStart = cursorEnd + 1;
                 cursorEnd = ji._findEndOfSegment(inputFormula, cursorStart, `^*/`, `+-`);
-                nextHarmony = new jiHarmony(inputFormula.slice(cursorStart, cursorEnd));
+                nextHarmony = new Harmony(inputFormula.slice(cursorStart, cursorEnd));
                 switch (operator) {
                     case `+`:
                         resultHarmony = resultHarmony.add(nextHarmony);
@@ -703,12 +703,12 @@ class jiHarmony extends Array {
             // phase 1: the input formula split at: '*' and '/'
             cursorEnd = ji._findEndOfSegment(inputFormula, 0, `^`, `*/`);
             if (cursorEnd < inputFormula.length) {
-                resultHarmony = new jiHarmony(inputFormula.slice(cursorStart, cursorEnd));
+                resultHarmony = new Harmony(inputFormula.slice(cursorStart, cursorEnd));
                 while (cursorEnd < inputFormula.length) {
                     operator = inputFormula[cursorEnd];
                     cursorStart = cursorEnd + 1;
                     cursorEnd = ji._findEndOfSegment(inputFormula, cursorStart, `^`, `*/`);
-                    nextHarmony = new jiHarmony(inputFormula.slice(cursorStart, cursorEnd));
+                    nextHarmony = new Harmony(inputFormula.slice(cursorStart, cursorEnd));
                     switch (operator) {
                         case `*`:
                             resultHarmony = resultHarmony.multiply(nextHarmony);
@@ -726,8 +726,8 @@ class jiHarmony extends Array {
                 // phase 2: the input formula split at: '^'
                 cursorEnd = ji._findEndOfSegment(inputFormula, 0, ``, `^`);
                 if (cursorEnd < inputFormula.length) {
-                    let baseHarmony = new jiHarmony(inputFormula.slice(cursorStart, cursorEnd));
-                    let harmonyExponent = new jiFraction(inputFormula.slice(cursorEnd + 1));
+                    let baseHarmony = new Harmony(inputFormula.slice(cursorStart, cursorEnd));
+                    let harmonyExponent = new Fraction(inputFormula.slice(cursorEnd + 1));
                     resultHarmony = baseHarmony.power(harmonyExponent[0]);
                 } else {
 
@@ -745,8 +745,8 @@ class jiHarmony extends Array {
                             // phase 3a: parse interior if it comprises comma-separated list of tones
                             if (!/[^0-9\(\)\-\*\/\^\,]/.test(interior)) {
                                 cursorEnd = ji._findEndOfSegment(interior, 0, `^*/`, `,`);
-                                let firstTone = new jiTone(interior.slice(cursorStart, cursorEnd));
-                                interiorHarmony = new jiHarmony([firstTone]);
+                                let firstTone = new Tone(interior.slice(cursorStart, cursorEnd));
+                                interiorHarmony = new Harmony([firstTone]);
                                 while (cursorEnd < interior.length) {
                                     operator = interior[cursorEnd];
                                     if (operator != ',') {
@@ -754,14 +754,14 @@ class jiHarmony extends Array {
                                     }
                                     cursorStart = cursorEnd + 1;
                                     cursorEnd = ji._findEndOfSegment(interior, cursorStart, `^*/`, `,`);
-                                    let nextTone = new jiTone(interior.slice(cursorStart, cursorEnd));
+                                    let nextTone = new Tone(interior.slice(cursorStart, cursorEnd));
                                     interiorHarmony = interiorHarmony.add([nextTone]);
                                 }
 
 
                                 // phase 3b: parse interior if it contains harmonies
                             } else {
-                                interiorHarmony = new jiHarmony(interior);
+                                interiorHarmony = new Harmony(interior);
                             }
 
                             // phase 3c: parse the begin-end brackets/braces
@@ -780,8 +780,8 @@ class jiHarmony extends Array {
 
                             // ... which is a single tone:    
                         } else {
-                            let singleton = new jiTone(inputFormula);
-                            resultHarmony = new jiHarmony([singleton]);
+                            let singleton = new Tone(inputFormula);
+                            resultHarmony = new Harmony([singleton]);
                         }
                     }
                 }
@@ -810,14 +810,14 @@ class jiHarmony extends Array {
 
 
     power(value) {
-        value = new jiFraction(value);
+        value = new Fraction(value);
         if (value[1] !== 1) {
             throw new Error(`The exponent of harmony exponentiation must be integer: ${inputFormula}.`)
         }
 
         let exponent = value[0];
         if (exponent == 0) {
-            return new jiHarmony(`{1}`);
+            return new Harmony(`{1}`);
         }
 
         if (exponent < 0) {
@@ -829,7 +829,7 @@ class jiHarmony extends Array {
             }
         }
 
-        let resultHarmony = new jiHarmony(this);
+        let resultHarmony = new Harmony(this);
         for (let i = 0; i < exponent - 1; i++) {
             resultHarmony = resultHarmony.multiply(this);
         }
@@ -839,8 +839,8 @@ class jiHarmony extends Array {
 
 
     multiply(value) {
-        value = new jiHarmony(value);
-        let resultHarmony = new jiHarmony();
+        value = new Harmony(value);
+        let resultHarmony = new Harmony();
         for (let i = 0; i < this.length; i++) {
             for (let j = 0; j < value.length; j++) {
                 let toneI = this[i];
@@ -859,14 +859,14 @@ class jiHarmony extends Array {
     }
 
     divide(value) {
-        value = new jiHarmony(value);
+        value = new Harmony(value);
         return this.multiply(value.power(`-1`));
     }
 
 
     add(value) {
-        value = new jiHarmony(value);
-        let resultHarmony = new jiHarmony(this);
+        value = new Harmony(value);
+        let resultHarmony = new Harmony(this);
         for (let i = 0; i < value.length; i++) {
             let test = true;
             for (let j = 0; j < this.length; j++) {
@@ -880,8 +880,8 @@ class jiHarmony extends Array {
     }
 
     remove(value) {
-        value = new jiHarmony(value);
-        let resultHarmony = new jiHarmony();
+        value = new Harmony(value);
+        let resultHarmony = new Harmony();
         for (let i = 0; i < this.length; i++) {
             let test = true;
             for (let j = 0; j < value.length; j++) {
@@ -896,7 +896,7 @@ class jiHarmony extends Array {
 
 
     toOctave(octave) {
-        let result = new jiHarmony();
+        let result = new Harmony();
         for (let i = 0; i < this.length; i++) {
             let candidate = this[i].toOctave(octave);
             let test = true;
@@ -937,7 +937,7 @@ class jiHarmony extends Array {
 
 
 
-class jiBasis extends jiHarmony {
+class jiBasis extends Harmony {
     constructor(value) {
         super(value);
         let reduction = jiBasis._reduce(value);
@@ -952,16 +952,16 @@ class jiBasis extends jiHarmony {
     }
 
     static _reduce(harmony) {
-        let reduced = new jiHarmony(harmony);
+        let reduced = new Harmony(harmony);
 
         // initiate invertedBasis: generate diagonal unit matrix 
-        let inverted = new jiHarmony();
+        let inverted = new Harmony();
         for (let i = 0; i < reduced.length; i++) {
-            inverted[i] = new jiTone();
+            inverted[i] = new Tone();
             for (let j = 0; j < i; j++) {
-                inverted[i].push(new jiFraction([0, 1]));
+                inverted[i].push(new Fraction([0, 1]));
             }
-            inverted[i].push(new jiFraction([1, 1]));
+            inverted[i].push(new Fraction([1, 1]));
         }
 
         // initiate primeIndices
@@ -1064,7 +1064,7 @@ class jiBasis extends jiHarmony {
 
     // test for a single tone:
     isIndependent(tone) {
-        tone = new jiTone(tone);
+        tone = new Tone(tone);
         let expandedBasis = this.add(tone);
         return jiBasis.isBasis(expandedBasis);
     }
@@ -1077,12 +1077,12 @@ class jiBasis extends jiHarmony {
 
     // promote some active methods from Harmony: 
     add(value) {
-        let harmony = new jiHarmony(this).add(value);
+        let harmony = new Harmony(this).add(value);
         return new jiBasis(harmony);
     }
 
     remove(value) {
-        let harmony = new jiHarmony(this).remove(value);
+        let harmony = new Harmony(this).remove(value);
         return new jiBasis(harmony);
     }
 
@@ -1152,220 +1152,41 @@ class jiWidths {
             (value) => value
         )
     }
-
-
-
 }
 
 
+// example of keyboard definitions: 
+
+let keyboardDefinition1 = [{
+    harmony: new Harmony(`{1, 9/8, 5/4, 4/3, 3/2}`),
+    shape: {
+        type: `rectangle`, // mozne hodnoty: `rectangle`, `ellipse`, `diamond`
+        sizeX: 50,
+        sizeY: 100,
+        roundingX: 4, // toto je irelevantne pre `ellipse`
+        roundingY: 6, // toto je irelevantne pre `ellipse`
+        rotation: 30,
+        offsetX: 0,
+        offsetY: 10,
+        shapeCollor: `#92a8d1`,
+        borderCollor: `#ffffff`,
+        borderThickness: 2,
+    },
+}, {
+    harmony: new Harmony(`{11/8, 13/8, 7/4}`),
+    shape: {
+        type: `ellipse`, // mozne hodnoty: `rectangle`, `ellipse`, `diamond`
+        sizeX: 40,
+        sizeY: 80,
+        roundingX: null, // toto je irelevantne pre `ellipse`
+        roundingY: null, // toto je irelevantne pre `ellipse`
+        rotation: 20,
+        offsetX: 0,
+        offsetY: 0,
+        shapeCollor: `#aaaaaa`,
+        borderCollor: `#bbbbbb`,
+        borderThickness: 2,
+    }
+}]
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// let tone1 = new Tone([
-//     [0, 1],
-//     [1, 3],
-//     [3, 2],
-//     [-1, 12],
-//     [3, 12]
-// ]);
-
-// // let tone2 = new Tone(`abc`);
-
-// let tone1a = new Tone([
-//     [0, 1]
-// ]);
-
-// let tone3 = new Tone([
-//     [-1, 2],
-//     [-1, 3],
-//     [-5, 2],
-//     [4, 12],
-//     [-3, 12]
-// ])
-
-
-
-// let tone5 = new Tone([
-//     [-3, 1],
-//     [2, 1]
-// ])
-
-// let tone4 = new Tone(`{1, 9/8, 5/4, 4/3, 3/2}`);
-
-// console.log(tone1);
-// console.log(tone1a);
-// console.log(tone5);
-
-// let test = `{1^(-5/12),2}*2^(-1/12)+{9/8}`
-// let test2 = `{1,2}*2^(-1/`
-// let x = JI.findEndOfSegment(test2, /[^0-9\(\)\{\}\[\]\-\+\*\/\^\,\s]/, ',', '*');
-// let y = JI.findEndOfBrackets(test2, 0);
-// console.log(`segment: ${x}, brackets: ${y}`);
-
-// let test_jifraction = [
-//     [2, 1], `2/3`, `8/6`, `-3/4`, `2/-1`, `0`, `2`, `-2`, `0/1`
-// ]
-// for (let x of test_jifraction) {
-//     let t = new JIFraction(x);
-//     console.log(t);
-// }
-
-// let a = new JIFraction(`8/6`).multiply(`(3/4)`).add([1, 2]).divide(`2`).subtract([2, -4])
-// console.log(a);
-
-
-
-
-
-// let JIFraction_test = [`3`, `1`, `-3`, `0`, `-6/-4`, `6 / -4`, `-6/ 4`, [-6, -4],
-//     [-0, 4], `-0 / 4`, [0, -4],
-//     [-0, -4]
-// ];
-// for (let x of JIFraction_test) {
-//     console.log(`---> Frac test for '${x}'---------------------`)
-//     let t = new Frac(x);
-//     console.log(t);
-//     console.log(`formula: ${t.getFormula()}`);
-//     console.log(`formula - fraction: ${t.getFormula('fraction')}`);
-//     console.log(``);
-// };
-
-
-
-// let Tone_test_formula = [
-//     `9`, `2^3 * 5 ^(-1)`, `(2/3)*(6/4)`, `(2/3)/(2/3)`, `2^3`, `2^(-1/12)`, `2^0`, `(2 /3) ^0 `, `5^1*2^(-2)`, // `((3 / 2) ^ (-1)) * 71 ^ (-8/12)`,
-// ];
-// for (let x of Tone_test_formula) {
-//     console.log(`---> Tone test (formulas) for '${x}'---------------------`)
-//     let t = new Tone(x);
-//     console.log(t);
-//     console.log(`formula: ${t.getFormula('simple')}`);
-//     console.log(`formula - pitch: ${t.getFormula('pitch')}`);
-//     console.log(`formula - cents: ${t.getFormula('cents')}`);
-//     console.log(`ratio: ${t.ratio}`);
-//     console.log(`pitch: ${t.pitch}`);
-//     console.log(`height: ${t.height}`);
-//     console.log(`height: ${t.height}`);
-//     console.log(`octave reduction: ${t.toOctave().getFormula()}`);
-//     console.log(t.toOctave());
-//     console.log(``)
-// }
-
-
-// let Tone_test_array = [
-//     [[-3, 1], [2, 1]], 
-// ];
-// for (let x of Tone_test_array) {
-//     console.log(`---> Tone test (arrays) for '${x}'---------------------`)
-//     let t = new Tone(x);
-//     console.log(t);
-//     console.log(`formula: ${t.getFormula()}`);
-//     console.log(``);
-// }
-
-
-// let Harmony_test = [
-//     [
-//         [
-//             [-3, 1],
-//             [2, 1]
-//         ],
-//     ],
-//     `{9/8}`,
-//     `{9/8, 3}`,
-//     `{9/3, 4/3, 18/6}`,
-//     `{2, 1}^3`,
-//     `8/9 * {9/8, 5/4, 4/3}`
-// ];
-// for (let x of Harmony_test) {
-//     console.log(`---> Harmony test for '${x}'---------------------`)
-//     let t = new Harmony(x);
-//     console.log(t);
-//     console.log(`first tone:`)
-//     console.log(t[0]);
-//     console.log(`formula: ${t.getFormula()}`);
-//     console.log(`formula - pitch: ${t.getFormula('pitch')}`);
-//     console.log(`formula - cents: ${t.getFormula('cents')}`);
-//     console.log(`octave reduction: ${t.toOctave().getFormula()}`);
-//     console.log(t.toOctave());
-//     console.log(``);
-// }
-
-
-// let a = new Harmony(`[{1, 3} * {1, 3}^(-1) * {4, 5, 6}]`);
-// console.log(a.getFormula('fraction'));
-// let b = a.sortByHeight();
-// console.log(b.getFormula());
-// let c = b.toCanonic();
-// console.log(c.getFormula());
-
-
-
-// let a = new Harmony(`{1}^(-1) * {1}`);
-// console.log(a);
-
-
-
-let Basis_test = [
-    `{2, 15, 75}`, `{2/3, 5, 15, 13/8}`,
-]
-for (let t of Basis_test) {
-    let x = new jiBasis(t);
-    console.log(`---> Basis test for ${t}-------------------`);
-    console.log(`Basis:`);
-    console.log(x.getFormula());
-    console.log(x);
-    console.log(`Reduced:`)
-    console.log(x.reduce().getFormula())
-    console.log(`Inverted:`)
-    console.log(x.invert().getFormula())
-    console.log(`Prime indices:`)
-    console.log(x.primeIndices())
-    console.log(`Canonic form:`)
-    console.log(x.toCanonic().getFormula());
-
-    console.log(`Prime widths:`)
-    let z = new jiWidths(x, [2, 5, 18])
-    console.log(z.primeWidths());
-
-    let u = z.setBasis(`{3/2,5/4, 7/4, 13/8, 2}`)
-    console.log(u.primeWidths())
-
-}
