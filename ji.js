@@ -1155,38 +1155,8 @@ class jiWidths {
 }
 
 
-// example of keyboard definitions: 
 
-let keyboardDefinition1 = [{
-    harmony: new Harmony(`{1, 9/8, 5/4, 4/3, 3/2}`),
-    shape: {
-        type: `rectangle`, // mozne hodnoty: `rectangle`, `ellipse`, `diamond`
-        sizeX: 50,
-        sizeY: 100,
-        roundingX: 4, // toto je irelevantne pre `ellipse`
-        roundingY: 6, // toto je irelevantne pre `ellipse`
-        rotation: 30,
-        offsetX: 0,
-        offsetY: 10,
-        shapeCollor: `#92a8d1`,
-        borderCollor: `#ffffff`,
-        borderThickness: 2,
-    },
-}, {
-    harmony: new Harmony(`{11/8, 13/8, 7/4}`),
-    shape: {
-        type: `ellipse`, // mozne hodnoty: `rectangle`, `ellipse`, `diamond`
-        sizeX: 40,
-        sizeY: 80,
-        roundingX: null, // toto je irelevantne pre `ellipse`
-        roundingY: null, // toto je irelevantne pre `ellipse`
-        rotation: 20,
-        offsetX: 0,
-        offsetY: 0,
-        shapeCollor: `#aaaaaa`,
-        borderCollor: `#bbbbbb`,
-        borderThickness: 2,
-    }
-}]
+
+
 
 
