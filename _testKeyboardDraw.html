@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<style type="text/css">
+    /* No style rules here yet */		
+</style>
+<svg width="1000" height="500"></svg>
+<script type="text/javascript" src="d3/d3.js"></script>
+<!-- <script type="text/javascript" src="svg.js"></script> -->
+<script type="text/javascript" src="ji.js"></script>
+
+<script type="text/javascript">
+
+    let keyboardDefinition = [{
+        tone: new Tone(`9/8`),
+        shape: {
+            type: `rectangle`, // mozne hodnoty: `rectangle`, `ellipse`, `diamond`
+            sizeX: 50,
+            sizeY: 100,
+            roundingX: 4, // toto je irelevantne pre `ellipse`
+            roundingY: 6, // toto je irelevantne pre `ellipse`
+            rotation: 30,
+            offsetX: 0,
+            offsetY: 10,
+            shapeCollor: `#92a8d1`,
+            borderCollor: `#ffffff`,
+            borderThickness: 2,
+        },
+    }, 
+    {
+        tone: new Tone(`5/4`),
+        shape: {
+            type: `ellipse`, // mozne hodnoty: `rectangle`, `ellipse`, `diamond`
+            sizeX: 40,
+            sizeY: 80,
+            roundingX: null, // toto je irelevantne pre `ellipse`
+            roundingY: null, // toto je irelevantne pre `ellipse`
+            rotation: 20,
+            offsetX: 0,
+            offsetY: 0,
+            shapeCollor: `#aaaaaa`,
+            borderCollor: `#bbbbbb`,
+            borderThickness: 2,
+        }
+    },
+    {
+        tone: new Tone(`5/4`),
+        shape: {
+            type: `ellipse`, // mozne hodnoty: `rectangle`, `ellipse`, `diamond`
+            sizeX: 80,
+            sizeY: 150,
+            roundingX: null, // toto je irelevantne pre `ellipse`
+            roundingY: null, // toto je irelevantne pre `ellipse`
+            rotation: 20,
+            offsetX: 20,
+            offsetY: 30,
+            shapeCollor: `#92a8d1`,
+            borderCollor: `#bbbbbb`,
+            borderThickness: 2,
+        }
+    },
+    {
+        tone: new Tone(`3/2`),
+        shape: {
+            type: `rectangle`, // mozne hodnoty: `rectangle`, `ellipse`, `diamond`
+            sizeX: 30,
+            sizeY: 120,
+            roundingX: 5, // toto je irelevantne pre `ellipse`
+            roundingY: 10, // toto je irelevantne pre `ellipse`
+            rotation: 30,
+            offsetX: 5,
+            offsetY: 5,
+            shapeCollor: `#aaaaaa`,
+            borderCollor: `#bbbbbb`,
+            borderThickness: 2,
+        }
+    },
+    ];
+
+     var svg = d3.select("svg"),
+        width = +svg.attr("width"),
+        height = +svg.attr("height"),
+        outerRadius = (height / 2 - 30),
+        innerRadius = outerRadius - 120,
+        g = svg.append("g").attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+    var over = "ontouchstart" in window ? "touchstart" : "mouseover",
+    out = "ontouchstart" in window ? "touchend" : "mouseout";
+
+    let datasetCircles = [];
+    let datasetRectangles = [];
+    let datasetDiamonds = [];
+
+    // naplnenie datasets - pre Circle, Rectangle a diamond zvlast
+    for (var i = 0; i < keyboardDefinition.length; i++) {
+        //keyDraw(keyboardDefinition[i])
+        //d3.select("body").append("p").text(keyboardDefinition[i].shape.type);
+        //d3.select("body").append("p").text(keyboardDefinition[i].tone);
+        console.log(keyboardDefinition[i].shape.type); //Print value to console
+        console.log(keyboardDefinition[i].tone); //Print value to console
+        if(keyboardDefinition[i].shape.type == `rectangle`) {
+            d3.select("body").append("p").text("nasiel som RECTANGLE");
+            
+            let recpars = [0,0,0]; // x,y,collor 
+            recpars[0] = keyboardDefinition[i].shape.offsetX;
+            recpars[1] = keyboardDefinition[i].shape.offsetY;
+            recpars[2] = keyboardDefinition[i].shape.shapeCollor;
+            recpars[3] = keyboardDefinition[i].shape.sizeX;
+            recpars[4] = keyboardDefinition[i].shape.sizeY;
+            datasetRectangles.push(recpars)
+ 
+
+        }
+        else if(keyboardDefinition[i].shape.type == `ellipse`) {
+            d3.select("body").append("p").text("nasiel som ELIPSE");
+            let circlepars = [0,0,0]; // x,y,polomer 
+            circlepars[0] = keyboardDefinition[i].shape.offsetX;
+            circlepars[1] = keyboardDefinition[i].shape.offsetY;
+            circlepars[2] = keyboardDefinition[i].shape.shapeCollor;
+            circlepars[3] = keyboardDefinition[i].shape.sizeX;
+            circlepars[4] = keyboardDefinition[i].shape.sizeY;
+            datasetCircles.push(circlepars)
+
+/*             circle.attr("cx", keyboardDefinition[i].shape.sizeX)
+                    .attr("cy", keyboardDefinition[i].shape.sizeY)
+                    .attr("r", 200)
+                    .attr("fill", keyboardDefinition[i].shape.shapeCollor);
+ */
+        } else if(keyboardDefinition[i].shape.type == `diamond`) {
+            d3.select("body").append("p").text("nasiel som DIAMOND");
+
+        } else {
+            d3.select("body").append("p").text("Nenasiel som korektný utvar na vykreslenie");
+            d3.select("body").append("p").text("Len toto: " & keyboardDefinition[i].shape.type);
+        }
+    }
+
+    // insert all circles/ellipses to SVG 
+    var mycircles = svg.selectAll("circle")
+        .data(datasetCircles)
+        .enter()
+        .append("circle")
+        .on(over, pressed("red"))
+        .on(out, pressed("blue"));
+
+    mycircles.attr("cx", function(d) {
+                return d[0];
+                })
+            .attr("cy", function(d) {
+                return d[1];
+                })
+            .attr("fill", function(d) {
+                return d[2];
+                })
+            .attr("r", 20);
+
+
+    // insert all rectangles to SVG 
+    var mycrects = svg.selectAll("rect")
+        .data(datasetRectangles)
+        .enter()
+        .append("rect")
+        .on(over, pressed("green"))
+        .on(out, pressed("black"));
+
+    mycrects.attr("cx", function(d) {
+            return d[0];
+            })
+        .attr("cy", function(d) {
+            return d[1];
+            })
+        .attr("fill", function(d) {
+            return d[2];
+            })
+        .attr("width", function(d) {
+            return d[3];
+            })
+        .attr("height", function(d) {
+            return d[4];
+            });
+
+
+    function pressed(col) {
+        return function() {
+            d3.select(this).attr("fill", col);
+			//d3.select("body").append("p").text(col);
+            }
+    } 
+
+</script>

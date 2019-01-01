@@ -54,8 +54,6 @@ let keyboardDefinition = [{
 
 
 
-
-
 let ji = {
 
     _dimension: 8,
