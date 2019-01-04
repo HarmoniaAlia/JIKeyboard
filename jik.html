@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="jik.css">
+
+</head>
+
+<body>
+
+    <!-- Top navigation -->
+    <div class="topNavigation">
+
+        <!-- Keyboard links -->
+        <button class="kbLink" onclick="openKeyboard(event, 'Keyboard 1')">Keyboard 1</button>
+        <button class="kbLink" onclick="openKeyboard(event, 'Keyboard 2')">Keyboard 2</button>
+        <button class="kbLink" onclick="openKeyboard(event, 'Keyboard 3')">Keyboard 3</button>
+
+    </div>
+
+    <!-- Keyboard descriptions -->
+    <div id="Keyboard 1" class="kbDescription">
+        <h3>Keyboard 1</h3>
+        <p>Keyboard 1 - bla bla bla.</p>
+    </div>
+
+    <div id="Keyboard 2" class="kbDescription">
+        <h3>Keyboard 2</h3>
+        <p>Keyboard 2 - tralalala.</p>
+    </div>
+
+    <div id="Keyboard 3" class="kbDescription">
+        <h3>Keyboard 3</h3>
+        <p>Keyboard 3 - ho ho ho.</p>
+    </div>
+
+
+
+    <!-- Button to open the keyboard settings -->
+    <button onclick="openModal(event, 'kbSettings')">Keyboard settings</button>
+
+    <!-- Keyboard settings - modal -->
+    <div id="kbSettings" class="modalBackground" onclick="closeModals(event)">
+
+        <!-- Modal Content -->
+        <form class="modalContent animateZoom">
+
+            <div class="harmonySettings">
+
+                <label><br>Harmony<br>
+                    <input type="text" name=harmony required>
+                </label>
+
+                <label>Repeating octaves
+                    <input type="checkbox" checked="checked">
+                </label>
+
+                <label><br>Shape<br>
+                    <input type="text" name="shape" required>
+                </label>
+
+                <div>
+                    <button type="button" onclick="addHarmony(event, 'before', true)">Add</button>
+                    <button type="button" onclick="addHarmony(event, 'before', false)">Duplicate</button>
+                    <button type="button" onclick="removeHarmony(event)">Remove</button>
+                    <button type="button" onclick="addHarmony(event, 'after', true)">Add</button>
+                    <button type="button" onclick="addHarmony(event, 'after', false)">Duplicate</button>
+                </div>
+
+            </div>
+
+
+
+            <div class="modalActions">
+                <button type="button" class="btn" onclick="saveKeyboard(event)">Save</button>
+                <button type="button" class="btn" onclick="closeModals(event)">Cancel</button>
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <script src="jik.js"></script>
+
+
+
+
+
+
+
+
+
+</body>
+
+</html>
