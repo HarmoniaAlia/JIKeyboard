@@ -12,14 +12,14 @@
     <div class="topNavigation">
 
         <!-- Keyboard links -->
-        <button class="kbLink" onclick="openKeyboard(event, 'Keyboard 1')">Keyboard 1</button>
+        <button class="kbLink active" onclick="openKeyboard(event, 'Keyboard 1')">Keyboard 1</button>
         <button class="kbLink" onclick="openKeyboard(event, 'Keyboard 2')">Keyboard 2</button>
         <button class="kbLink" onclick="openKeyboard(event, 'Keyboard 3')">Keyboard 3</button>
 
     </div>
 
     <!-- Keyboard descriptions -->
-    <div id="Keyboard 1" class="kbDescription">
+    <div id="Keyboard 1" class="kbDescription active">
         <h3>Keyboard 1</h3>
         <p>Keyboard 1 - bla bla bla.</p>
     </div>
@@ -40,10 +40,13 @@
     <button onclick="openModal(event, 'kbSettings')">Keyboard settings</button>
 
     <!-- Keyboard settings - modal -->
-    <div id="kbSettings" class="modalBackground" onclick="closeModals(event)">
+    <div class="modalFrame" id="kbSettings">
 
-        <!-- Modal Content -->
-        <form class="modalContent animateZoom">
+        <form class="modalContent animateZoomIn">
+
+            <label><br>Keyboard<br>
+                <input type="text" name=keyboard required>
+            </label>
 
             <div class="harmonySettings">
 
@@ -69,11 +72,9 @@
 
             </div>
 
-
-
             <div class="modalActions">
                 <button type="button" class="btn" onclick="saveKeyboard(event)">Save</button>
-                <button type="button" class="btn" onclick="closeModals(event)">Cancel</button>
+                <button type="button" class="btn" onclick="closeModal(event)">Cancel</button>
             </div>
 
         </form>

@@ -1,35 +1,40 @@
+
 function openKeyboard(event, kbId) {
 
-  let kbDescripions = document.getElementsByClassName("kbDescription");
-  for (let i = 0; i < kbDescripions.length; i++) {
-    kbDescripions[i].style.display = "none";
+  let allLinks = document.getElementsByClassName("kbLink");
+  for (i = 0; i < allLinks.length; i++) {
+    allLinks[i].classList.remove("active");
   }
 
-  let kbLinks = document.getElementsByClassName("kbLink");
-  for (i = 0; i < kbLinks.length; i++) {
-    kbLinks[i].className = kbLinks[i].className.replace(" active", "");
+  let currentLink = event.currentTarget;
+  currentLink.classList.add("active");
+
+  let allDescriptions = document.getElementsByClassName("kbDescription");
+  for (let i = 0; i < allDescriptions.length; i++) {
+    allDescriptions[i].classList.remove("active");
   }
 
-  document.getElementById(kbId).style.display = "block";
-  event.currentTarget.className += " active";
+  let currentDescription = document.getElementById(kbId);
+  currentDescription.classList.add("active");
+
+
+
+  // document.getElementById(kbId).style.display = "block";
+
+  //event.currentTarget.className += " active";
 }
 
 
 
 function openModal(event, modalId) {
-  document.getElementById(modalId).style.display = 'block'
+  let frame = document.getElementById(modalId);
+  frame.style.display = "block";
 }
 
 
-
-
-function closeModals(event) {
-  let modals = document.getElementsByClassName('modalBackground');
-  if (event.target == event.currentTarget) {
-    for (let i = 0; i < modals.length; i++) {
-      modals[i].style.display = "none";
-    }
-  }
+function closeModal(event) {
+  let frame = event.target.closest('.modalFrame');
+  frame.style.display = "none";
 }
 
 
@@ -58,4 +63,11 @@ function addHarmony(event, position, clear) {
 function removeHarmony(event) {
   let currentHarmony = event.target.closest('.harmonySettings');
   currentHarmony.remove();
+}
+
+
+function saveKeyboard(event) {
+  let keyboardSettings = event.target.closest('#keyboardSettings');
+  let json = JSON.stringify(keyboardSettings);
+
 }
